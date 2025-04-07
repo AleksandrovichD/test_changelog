@@ -1,4 +1,5 @@
 # test_changelog
-For testing autogenerating changelog
+For testing auto generating changelog
 
-### added action!
+- added action
+- added release action
