@@ -1,14 +1,9 @@
 # Название workflow, описывает его цель
-name: Generate Changelog
+name: Generate Release Changelog
 
 
 # Указывает событие, при котором будет запускаться workflow
 on:
-  # Событие push в репозиторий
-  push:
-    # Указывает, что workflow будет запускаться только при пушах в ветку main
-    branches:
-      - main
   # Событие создания релиза
   release:
     types: [created]
