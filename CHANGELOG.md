@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] - 2025-04-07
+
+### 🚀 Features
+
+- New feature test commit
+
+### 🐛 Bug Fixes
+
+- Update changelog action
+
 ## [1.0.0] - 2025-04-07
 
 ### 🚀 Features
