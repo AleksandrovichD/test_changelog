@@ -6,4 +6,4 @@ For testing auto generating changelog
 - updated action
 - new feature
 
-![[CHANGELOG.md]]
+![[CHANGELOG]]
