@@ -5,3 +5,5 @@ For testing auto generating changelog
 - added release action
 - updated action
 - new feature
+
+![[CHANGELOG.md]]
