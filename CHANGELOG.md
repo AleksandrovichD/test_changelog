@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
 ### 🚀 Features
 
 - New feature test commit
+- Add action for prepare release
 
 ### 🐛 Bug Fixes
 
