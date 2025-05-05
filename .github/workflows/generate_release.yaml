@@ -1,0 +1,77 @@
+# Название workflow, описывает его цель
+name: Generate Release
+
+
+# Указывает событие, при котором будет запускаться workflow
+on:
+  # Событие push в репозиторий
+  push:
+    # ToDo: сделать триггер на коммит с номером версии в заголовке
+    # Указывает, что workflow будет запускаться только при пушах в ветку main
+    branches:
+      - main
+
+
+# Определяет задачи, которые будут выполнены в рамках workflow
+jobs:
+  # Имя задачи, можно назвать по-другому, например, "update-changelog"
+  prepare-release:
+    # Запуск задачи на последней версии Ubuntu
+    runs-on: ubuntu-latest
+
+
+    # Шаги, которые необходимо выполнить в рамках задачи
+    steps:
+      # Использование действия checkout для клонирования репозитория
+      - name: Checkout code
+      - uses: actions/checkout@v4
+        # Выкачивание всей истории коммитов, необходимо для корректной работы многих инструментов генерации changelog
+        with:
+          fetch-depth: 0
+
+      - name: Extract commit message
+          id: extract-commit
+          run: |
+            COMMIT_MSG=$(git log -1 --pretty=%B)
+            echo "message=$COMMIT_MSG" >> $GITHUB_OUTPUT
+
+      - name: Check version pattern
+        id: check-version
+        run: |
+          if [[ "${{ steps.extract-commit.outputs.message }}" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            echo "version=${BASH_REMATCH[0]}" >> $GITHUB_OUTPUT
+            echo "version_part=major:${BASH_REMATCH[1]} minor:${BASH_REMATCH[2]} patch:${BASH_REMATCH[3]}" >> $GITHUB_OUTPUT
+            echo "match=true" >> $GITHUB_OUTPUT
+          else
+            echo "match=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Skip if no version
+        if: steps.check-version.outputs.match != 'true'
+        run: exit 0
+
+      # Создаем changelog
+      - name: Generate a changelog
+        uses: orhun/git-cliff-action@v3
+        with:
+          config: cliff.toml
+          args: -v -t ${{ steps.check-version.outputs.version }}
+        env:
+          OUTPUT: CHANGELOG.md
+
+      # Шаг для коммита изменений
+      - name: Commit Changelog
+        # Команды для выполнения
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions@github.com'
+          git add CHANGELOG.md
+          git commit -m "Обновление CHANGELOG.md"
+
+      - name: Create tag
+        run: |
+          git tag ${{ steps.check-version.outputs.version }}
+
+      - name: Push changes
+        run: |
+          git push https://github.com/${{ github.repository }}.git HEAD:main
