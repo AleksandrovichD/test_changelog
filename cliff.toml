@@ -1,0 +1,53 @@
+[changelog]
+header = """
+# Changelog\n
+All notable changes to this project will be documented in this file.\n
+"""
+body = """
+{% if version %}\
+    ## [{{ version | trim_start_matches(pat="v") }}] - {{ timestamp | date(format="%Y-%m-%d") }}
+{% else %}\
+    ## [Unreleased]
+{% endif %}\
+{% for group, commits in commits | groupby(attribute="group") %}
+    ### {{ group }}
+    {% for commit in commits %}
+        - {% if commit.scope %}**{{ commit.scope }}**: {% endif %}\
+          {{ commit.message | upper_first }} (\
+          {% if commit.remote.pr_title %}\
+            [#{{ commit.remote.pull_request }}]({{ commit.remote.github.html_url }}/pull/{{ commit.remote.pull_request }})\
+          {% else %}\
+            [{{ commit.id | truncate(length=7, end="") }}]({{ commit.remote.github.html_url }}/commit/{{ commit.id }})\
+          {% endif %})\
+    {% endfor %}
+{% endfor %}\n
+"""
+trim = true
+
+[git]
+# Включаем поддержку Conventional Commits
+conventional_commits = true
+filter_unconventional = true
+
+# Правила для автоматического вычисления версии (SemVer)
+breaking_commits_bump = "major" # Логика по умолчанию для ломающих изменений
+minor_commits_bump = "minor"    # Логика для фич (feat)
+patch_commits_bump = "patch"    # Логика для багов (fix)
+
+commit_parsers = [
+    { message = "^feat", group = "🚀 Features" },
+    { message = "^fix", group = "🐛 Bug Fixes" },
+    { message = "^doc", group = "📚 Documentation" },
+    { message = "^perf", group = "⚡ Performance" },
+    { message = "^refactor", group = "🚜 Refactoring" },
+    { message = "^style", group = "🎨 Styling" },
+    { message = "^test", group = "🧪 Testing" },
+    { message = "^chore\\(release\\)", skip = true },
+    { message = "^chore", group = "⚙️ Miscellaneous Tasks" },
+    { body = ".*", skip = true },
+]
+
+
+[remote.github]
+owner = "YOUR_GITHUB_USERNAME"
+repo = "YOUR_REPO_NAME"
