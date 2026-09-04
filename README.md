@@ -5,5 +5,4 @@ For testing auto generating changelog
 - added release action
 - updated action
 - new feature
-
-![[CHANGELOG]]
+- new workflow
