@@ -13,41 +13,44 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
-          fetch-depth: 0 # Скачиваем всю историю, чтобы cliff видел dev и прошлые теги
+          fetch-depth: 0 # Скачиваем весь репозиторий
 
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@://github.com"
 
+      # - name: Install git-cliff
+      #   run: |
+      #     wget https://github.com
+      #     tar -xf git-cliff-linux-amd64.tar.gz
+      #     mv git-cliff-linux-amd64/git-cliff .
+      
       - name: Install git-cliff
-        run: |
-          wget https://github.com
-          tar -xf git-cliff-linux-amd64.tar.gz
-          mv git-cliff-linux-amd64/git-cliff .
+        uses: taiki-e/install-action@git-cliff
 
       - name: Process Release
         run: |
           # 1. Находим предыдущий коммит в ветке main
           PREV_MAIN=$(git rev-parse HEAD~1 2>/dev/null || git rev-list --max-parents=0 HEAD)
-          
+
           # 2. Вычисляем следующую версию на основе коммитов из dev
           # Флаг --bump-by-commit указывает рассчитывать версию по истории изменений
           NEXT_VERSION=$(./git-cliff $PREV_MAIN..origin/dev --bump --dry-run | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || echo "0.1.0")
           echo "Calculated next version: v$NEXT_VERSION"
-          
+
           # 3. Генерируем CHANGELOG.md, явно подставляя вычисленную версию в заголовок
           ./git-cliff $PREV_MAIN..origin/dev --prepend CHANGELOG.md --tag "v$NEXT_VERSION"
-          
+
           # 4. Добавляем изменения в коммит (делаем amend сквош-коммита)
           git add CHANGELOG.md
           git commit --amend --no-edit
-          
+
           # 5. Создаем тег на ОТРЕДАКТИРОВАННЫЙ коммит
           git tag -a "v$NEXT_VERSION" -m "Release v$NEXT_VERSION"
-          
+
           # 6. Отправляем изменения в GitHub (нужен force для коммита, теги пушим отдельно)
           git push origin main --force
           git push origin "v$NEXT_VERSION"
