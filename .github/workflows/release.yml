@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0 # Скачиваем весь репозиторий
 
@@ -27,10 +27,11 @@ jobs:
       #     wget https://github.com
       #     tar -xf git-cliff-linux-amd64.tar.gz
       #     mv git-cliff-linux-amd64/git-cliff .
+      
+      - name: Install git-cliff
+        uses: taiki-e/install-action@git-cliff
 
       - name: Process Release
-        uses: orhun/git-cliff@v1
-
         run: |
           # 1. Находим предыдущий коммит в ветке main
           PREV_MAIN=$(git rev-parse HEAD~1 2>/dev/null || git rev-list --max-parents=0 HEAD)
