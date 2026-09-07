@@ -49,5 +49,5 @@ commit_parsers = [
 
 
 [remote.github]
-owner = "YOUR_GITHUB_USERNAME"
-repo = "YOUR_REPO_NAME"
+owner = "AleksandrovichD"
+repo = "test_changelog"
