@@ -33,8 +33,9 @@ jobs:
 
       - name: Process Release
         run: |
-          # 1. Находим предыдущий коммит в ветке main
+          #1. Находим предыдущий коммит в ветке main
           PREV_MAIN=$(git rev-parse HEAD~1 2>/dev/null || git rev-list --max-parents=0 HEAD)
+          echo "PREV_MAIN: $PREV_MAIN"
 
           # 2. Вычисляем следующую версию на основе коммитов из dev
           # Флаг --bump-by-commit указывает рассчитывать версию по истории изменений
