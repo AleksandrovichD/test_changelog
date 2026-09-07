@@ -28,15 +28,13 @@ jobs:
       #     tar -xf git-cliff-linux-amd64.tar.gz
       #     mv git-cliff-linux-amd64/git-cliff .
       
-      # - name: Install git-cliff
-        # uses: taiki-e/install-action@git-cliff
+      - name: Install git-cliff
+        uses: taiki-e/install-action@git-cliff
       
-      - name: Set up git-cliff
-        uses: orhun/git-cliff-action@v4
-        with:
-          export-only: true # Просто устанавливает бинарник в систему, не запуская генерацию сразу
-
-      
+      # - name: Set up git-cliff
+        # uses: orhun/git-cliff-action@v4
+        # with:
+          # export-only: true # Просто устанавливает бинарник в систему, не запуская генерацию сразу
 
       - name: Process Release
         run: |
