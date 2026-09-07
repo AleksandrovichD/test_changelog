@@ -38,28 +38,28 @@ jobs:
 
       - name: Process Release
         run: |
-          #1. Находим предыдущий коммит в ветке main
+          # 1. Находим предыдущий коммит в ветке main
           PREV_MAIN=$(git rev-parse HEAD~1 2>/dev/null || git rev-list --max-parents=0 HEAD)
           echo "PREV_MAIN: $PREV_MAIN"
-
-          # 2. Вычисляем следующую версию на основе коммитов из dev
-          # Флаг --bump-by-commit указывает рассчитывать версию по истории изменений
-          NEXT_VERSION=$(git-cliff $PREV_MAIN..origin/dev --bump --dry-run | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || echo "0.1.0")
+          
+          # 2. Вычисляем следующую версию на основе коммитов из dev (убран --dry-run)
+          # Чтобы API GitHub не выдавало 404, мы временно переключаемся на синтаксис без origin/ для самого cliff
+          NEXT_VERSION=$(git-cliff $PREV_MAIN..dev --bump | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' || echo "0.1.0")
           echo "Calculated next version: v$NEXT_VERSION"
           
-          # Если файла CHANGELOG.md еще нет, создаем пустой, чтобы --prepend не ругался
+          # Если файла CHANGELOG.md еще нет, создаем пустой
           touch CHANGELOG.md
 
-          # 3. Генерируем CHANGELOG.md, явно подставляя вычисленную версию в заголовок
-          git-cliff $PREV_MAIN..origin/dev --prepend CHANGELOG.md --tag "v$NEXT_VERSION"
-
+          # 3. Генерируем CHANGELOG.md, подставляя версию
+          git-cliff $PREV_MAIN..dev --prepend CHANGELOG.md --tag v$NEXT_VERSION
+          
           # 4. Добавляем изменения в коммит (делаем amend сквош-коммита)
           git add CHANGELOG.md
           git commit --amend --no-edit
-
+          
           # 5. Создаем тег на ОТРЕДАКТИРОВАННЫЙ коммит
-          git tag -a "v$NEXT_VERSION" -m "Release v$NEXT_VERSION"
-
-          # 6. Отправляем изменения в GitHub (нужен force для коммита, теги пушим отдельно)
+          git tag -a v$NEXT_VERSION -m "Release v$NEXT_VERSION"
+          
+          # 6. Отправляем изменения в GitHub
           git push origin main --force
-          git push origin "v$NEXT_VERSION"
+          git push origin v$NEXT_VERSION
